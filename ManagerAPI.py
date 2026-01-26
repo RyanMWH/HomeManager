@@ -20,7 +20,7 @@ def getTasks():
         return jsonify(tasks), 200
     
     except FileNotFoundError:
-        return jsonify({"error": "calendarFile not found."}), 500
+        return jsonify({"error": "Lists file not found."}), 500
     
     except json.JSONDecodeError:
         return jsonify({"error": "Invalid JSON file."}), 500
@@ -51,6 +51,55 @@ def updateTaskComplete():
                     json.dump(data, listsFile, indent=2)
 
                 return jsonify({"message": "Task updated"}), 200
+
+    except FileNotFoundError:
+        return jsonify({"error": "lists.json not found."}), 500
+    
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON file."}), 500  
+
+# Gets the shopping list items
+@app.route('/lists/items', methods = ['GET'])
+def getItems():
+    try:
+        with open('lists.json', 'r') as listsFile:
+            data = json.load(listsFile)
+
+        tasks = data.get("Groceries List", [])
+        return jsonify(tasks), 200
+    
+    except FileNotFoundError:
+        return jsonify({"error": "Lists file not found."}), 500
+    
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON file."}), 500
+
+# Updates the completion of the tasks    
+@app.route('/lists/items/update', methods = ['POST'])
+def updateItemGathered():
+    try:
+        payload = request.get_json()
+
+        item_id = payload.get('id')
+        gathered = payload.get('gathered')
+
+        if item_id is None or gathered is None:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        with open('lists.json', 'r') as listsFile:
+            data = json.load(listsFile)
+
+
+        
+
+        for item in data["Groceries List"]:
+            if item["id"] == item_id:
+                item["gathered"] = bool(gathered)
+
+                with open('lists.json', 'w') as listsFile:
+                    json.dump(data, listsFile, indent=2)
+
+                return jsonify({"message": "Item updated"}), 200
 
     except FileNotFoundError:
         return jsonify({"error": "lists.json not found."}), 500

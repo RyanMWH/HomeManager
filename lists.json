@@ -20,7 +20,7 @@
       "id": 3,
       "title": "Set Dentist Apt",
       "owner": "Ryan",
-      "completed": false,
+      "completed": true,
       "important": true,
       "duedate": "2026-02-05"
     }
@@ -28,12 +28,188 @@
   "Groceries List": [
     {
       "id": 1,
-      "item": "Buy milk",
+      "item": "Milk",
+      "category": "Dairy & Eggs",
       "gathered": false
     },
     {
-      "id": 1,
-      "item": "Buy milk",
+      "id": 2,
+      "item": "Eggs",
+      "category": "Dairy & Eggs",
+      "gathered": false
+    },
+    {
+      "id": 3,
+      "item": "Butter",
+      "category": "Dairy & Eggs",
+      "gathered": false
+    },
+    {
+      "id": 4,
+      "item": "Cheddar Cheese",
+      "category": "Dairy & Eggs",
+      "gathered": false
+    },
+    {
+      "id": 5,
+      "item": "Yogurt",
+      "category": "Dairy & Eggs",
+      "gathered": false
+    },
+    {
+      "id": 6,
+      "item": "Chicken Breast",
+      "category": "Meat & Seafood",
+      "gathered": false
+    },
+    {
+      "id": 7,
+      "item": "Ground Beef",
+      "category": "Meat & Seafood",
+      "gathered": false
+    },
+    {
+      "id": 8,
+      "item": "Salmon",
+      "category": "Meat & Seafood",
+      "gathered": false
+    },
+    {
+      "id": 9,
+      "item": "Apples",
+      "category": "Produce",
+      "gathered": false
+    },
+    {
+      "id": 10,
+      "item": "Bananas",
+      "category": "Produce",
+      "gathered": false
+    },
+    {
+      "id": 11,
+      "item": "Spinach",
+      "category": "Produce",
+      "gathered": false
+    },
+    {
+      "id": 12,
+      "item": "Broccoli",
+      "category": "Produce",
+      "gathered": false
+    },
+    {
+      "id": 13,
+      "item": "Carrots",
+      "category": "Produce",
+      "gathered": false
+    },
+    {
+      "id": 14,
+      "item": "Bread",
+      "category": "Bakery",
+      "gathered": true
+    },
+    {
+      "id": 15,
+      "item": "Bagels",
+      "category": "Bakery",
+      "gathered": false
+    },
+    {
+      "id": 16,
+      "item": "Rice",
+      "category": "Pantry / Dry Goods",
+      "gathered": false
+    },
+    {
+      "id": 17,
+      "item": "Pasta",
+      "category": "Pantry / Dry Goods",
+      "gathered": false
+    },
+    {
+      "id": 18,
+      "item": "Canned Tomatoes",
+      "category": "Pantry / Dry Goods",
+      "gathered": false
+    },
+    {
+      "id": 19,
+      "item": "Black Beans",
+      "category": "Pantry / Dry Goods",
+      "gathered": false
+    },
+    {
+      "id": 20,
+      "item": "Peanut Butter",
+      "category": "Pantry / Dry Goods",
+      "gathered": false
+    },
+    {
+      "id": 21,
+      "item": "Frozen Pizza",
+      "category": "Frozen Foods",
+      "gathered": false
+    },
+    {
+      "id": 22,
+      "item": "Frozen Berries",
+      "category": "Frozen Foods",
+      "gathered": false
+    },
+    {
+      "id": 23,
+      "item": "Ice Cream",
+      "category": "Frozen Foods",
+      "gathered": false
+    },
+    {
+      "id": 24,
+      "item": "Chips",
+      "category": "Snacks & Sweets",
+      "gathered": false
+    },
+    {
+      "id": 25,
+      "item": "Granola Bars",
+      "category": "Snacks & Sweets",
+      "gathered": false
+    },
+    {
+      "id": 26,
+      "item": "Chocolate",
+      "category": "Snacks & Sweets",
+      "gathered": false
+    },
+    {
+      "id": 27,
+      "item": "Ketchup",
+      "category": "Condiments & Sauces",
+      "gathered": false
+    },
+    {
+      "id": 28,
+      "item": "Mustard",
+      "category": "Condiments & Sauces",
+      "gathered": false
+    },
+    {
+      "id": 29,
+      "item": "Soy Sauce",
+      "category": "Condiments & Sauces",
+      "gathered": false
+    },
+    {
+      "id": 30,
+      "item": "Orange Juice",
+      "category": "Drinks",
+      "gathered": false
+    },
+    {
+      "id": 31,
+      "item": "Coffee",
+      "category": "Drinks",
       "gathered": false
     }
   ],

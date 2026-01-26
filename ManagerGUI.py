@@ -182,7 +182,6 @@ class Application(tk.Frame):
         self.startFetch(self.currentContent)
         self.fetchButton.config(command= lambda: self.manualFetch())
         
-    
     def carMaintenanceContent(self):
         self.stopFetchLoop()
         self.currentContent = "carMaintenance"
@@ -196,12 +195,54 @@ class Application(tk.Frame):
     def shoppingListsContent(self):
         self.stopFetchLoop()
         self.currentContent = "shoppingLists"
-        self.clearFrame(self.contentArea)# Content Area labels.
-        self.shoppingListLabel = tk.Label(self.contentArea, text="Shopping Lists")
-        self.shoppingListLabel.grid(sticky="nw", padx=10, pady=10)
-        print("Creating the Result label holder...")
+        self.clearFrame(self.contentArea)
 
-        self.fetchButton.config(command= lambda: self.startFetch(self.currentContent))
+        # Setting Shopping List Page Content Frame
+        self.shoppingListPageArea = tk.Frame(self.contentArea, bg="#262626")
+        self.shoppingListPageArea.grid(row=0, column=0, sticky="nsew")
+        self.shoppingListPageArea.columnconfigure(0, weight=1)
+        self.shoppingListPageArea.rowconfigure(0, weight=1)
+        self.shoppingListPageArea.rowconfigure(1, weight=8)
+
+        # Creating Frames
+        # Task Title Frame
+        self.shoppingListsTitleFrame = tk.Frame(self.shoppingListPageArea, bg="#262626")
+        self.shoppingListsTitleFrame.grid(row=0, column=0, sticky="nsew")
+        self.shoppingListsTitleFrame.columnconfigure(0, weight=1)
+        self.shoppingListsTitleLabel = tk.Label(self.shoppingListsTitleFrame,
+                                       text="Shopping List", 
+                                       bg="#262626",
+                                       fg="white",
+                                       anchor="center",
+                                       pady=10,
+                                       font=("Helvetica", 18, "bold")
+                                       )
+        self.shoppingListsTitleLabel.grid(row=0, column=0, sticky="ew")
+        
+        # Items Frame
+        self.itemHolderFrame = tk.Frame(self.shoppingListPageArea, bg="#262626")
+        self.itemHolderFrame.grid(row=1, column=0, sticky="nsew")
+        self.itemHolderFrame.columnconfigure(0, weight=1)
+        self.itemHolderFrame.columnconfigure(1, weight=1)
+
+        self.leftItemsFrame = tk.Frame(self.itemHolderFrame, bg="#262626")
+        self.leftItemsFrame.grid(row=0, column=0, sticky="nsew")
+        self.leftItemsFrame.columnconfigure(0, weight=0)
+        self.leftItemsFrame.columnconfigure(1, weight=0)
+        self.leftItemsFrame.columnconfigure(2, weight=1)
+        self.leftItemsFrame.columnconfigure(3, weight=0)
+
+        self.rightItemsFrame = tk.Frame(self.itemHolderFrame, bg="#262626")
+        self.rightItemsFrame.grid(row=0, column=1, sticky="nsew")
+        self.rightItemsFrame.columnconfigure(0, weight=0)
+        self.rightItemsFrame.columnconfigure(1, weight=0)
+        self.rightItemsFrame.columnconfigure(2, weight=1)
+        self.rightItemsFrame.columnconfigure(3, weight=0)
+        
+
+        
+        self.startFetch(self.currentContent)
+        self.fetchButton.config(command= lambda: self.manualFetch(self.currentContent))
 
     def clearFrame(self, frame):
         
@@ -237,8 +278,11 @@ class Application(tk.Frame):
                 self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch, selectedDate))
 
             case "shoppingLists":
-                print("Fetching Shopping Lists")
-
+                print("Starting thread for shopping list items...")
+                threading.Thread(
+                    target=self.fetchItems,
+                    daemon= True
+                ).start()
                 self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
 
             case "carMaintenance":
@@ -267,7 +311,6 @@ class Application(tk.Frame):
             self.fetch_job = None
             self.fetch_running = False
         
-
     def fetchDateEvents(self, date):
         print(f"Fetching events for {date}...")
 
@@ -403,12 +446,89 @@ class Application(tk.Frame):
             taskTextLabel.grid(row=row, column=2, sticky="nw")
 
             if task["owner"] is not None:
-                categoryLabel = tk.Label(self.tasksFrame, text= task["owner"], bg="#005CFC").grid(row=row, column=3, sticky="w", padx=(450, 0))
+                ownerLabel = tk.Label(self.tasksFrame, text= task["owner"], bg="#005CFC").grid(row=row, column=3, sticky="w", padx=(450, 0))
 
             if task["duedate"] is not None:
                 dateLabel = tk.Label(self.tasksFrame, text= task["duedate"], bg="#FF3700", fg="#000000").grid(row=row, column=4, sticky="ew")
 
+    def fetchItems(self):
+            print("Fetching items...")
+
+            response = requests.get(f"http://127.0.0.1:5000/lists/items")
+            data = response.json()
+
+            print(f"API Response type: {type(data)}")
+            print(f"API Response data: {data}")
             
+            self.after(0, lambda: self.updateItems(data))
+
+            self.fetch_running = False
+
+    def updateItems(self, items):
+
+
+        if not items:
+            tk.Label(
+                self.itemsFrame,
+                text="No Items",
+                bg="#262626",
+                justify= "center"
+            ).grid(sticky="ew")
+            return
+        
+        itemAmount = len(items)
+        print(f"Amount of Items: {itemAmount}")
+
+        halfamount = int(itemAmount / 2)
+        starterColumn = 0
+        removeRows = 0
+        column = self.leftItemsFrame
+        sorteditems = sorted(items, key= lambda item: item['category'])
+
+        for row, item in enumerate(sorteditems):
+            if row >= halfamount:
+                column = self.rightItemsFrame
+                removeRows = halfamount
+            # The variable below is like an on/off switch for the checkbox 
+            Var = tk.IntVar(value=1 if item.get("gathered") else 0)
+
+            # Create a font object for this label
+            Font = tkFont.Font(family="Helvetica", size=12)    
+            Font.configure(overstrike=1 if item.get("gathered") else 0)
+
+
+            itemTextLabel = tk.Label(column,
+                                      text=item['item'],
+                                      bg="#262626",
+                                      font=Font)
+            item_id = item["id"]
+
+            # This is the main toggle that use the on/off switch in unison with the text label
+            def toggle(var=Var,font=Font, iid=item_id):
+                font.configure(overstrike= var.get())
+                requests.post(
+                    "http://127.0.0.1:5000/lists/items/update",
+                    json={
+                        "id": iid,
+                        "gathered": bool(var.get()),
+                        "category": item["category"]
+                    },
+                    timeout=2
+                )
+
+
+            gatheredCheckBox = tk.Checkbutton(column,
+                                               variable=Var,
+                                               command=toggle,
+                                               bg="#262626")
+            
+            gatheredCheckBox.grid(row=row-removeRows, column=0, sticky="nw", padx=(0, 8)) 
+
+            itemTextLabel.grid(row=row-removeRows, column=1, sticky="nw")
+
+            if item["category"] is not None:
+                categoryLabel = tk.Label(column, anchor="e", text= item["category"], bg="#005CFC").grid(row=row-removeRows, column=2, sticky="e")
+        
 
 
 app = Application()
