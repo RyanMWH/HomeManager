@@ -40,7 +40,7 @@ class Application(tk.Frame):
         self.topMenu.grid(column=0, row=0, sticky=tk.EW)
         print("Creating Top Menu...")
 
-        for x in range(6):
+        for x in range(7):
             self.topMenu.columnconfigure(x, weight=1)
             print("Creating column ", x ,"...")
         
@@ -80,6 +80,10 @@ class Application(tk.Frame):
         self.shoppingListButton = tk.Button(self.topMenu, text="Shopping List", command=self.shoppingListsContent)
         self.shoppingListButton.grid(column= 4, row=0, pady= 5)
         print("Creating the Shopping List button...")
+
+        self.projectsButton = tk.Button(self.topMenu, text="Projects", command=self.projectsContent)
+        self.projectsButton.grid(column= 5, row=0, pady= 5)
+        print("Creating the Projects button...")
 
         
     
@@ -244,6 +248,46 @@ class Application(tk.Frame):
         self.startFetch(self.currentContent)
         self.fetchButton.config(command= lambda: self.manualFetch(self.currentContent))
 
+    def projectsContent(self):
+        self.stopFetchLoop()
+        self.currentContent = "projects"
+        self.clearFrame(self.contentArea)
+
+        # Setting Project Page Content Frame
+        self.projectsPageArea = tk.Frame(self.contentArea, bg="#262626")
+        self.projectsPageArea.grid(row=0, column=0, sticky="nsew")
+        self.projectsPageArea.columnconfigure(0, weight=1)
+        self.projectsPageArea.rowconfigure(0, weight=1)
+        self.projectsPageArea.rowconfigure(1, weight=8)
+
+        # Creating Frames
+        # Project Title Frame
+        self.projectTitleFrame = tk.Frame(self.projectsPageArea, bg="#262626")
+        self.projectTitleFrame.grid(row=0, column=0, sticky="nsew")
+        self.projectTitleFrame.columnconfigure(0, weight=1)
+        self.projectTitleLabel = tk.Label(self.projectTitleFrame,
+                                       text="Projects", 
+                                       bg="#262626",
+                                       fg="white",
+                                       anchor="center",
+                                       pady=10,
+                                       font=("Helvetica", 18, "bold")
+                                       )
+        self.projectTitleLabel.grid(row=0, column=0, sticky="ew")
+        
+        # Projects Frame
+        self.projectsFrame = tk.Frame(self.projectsPageArea, bg="#262626")
+        self.projectsFrame.grid(row=1, column=0, sticky="nsew")
+        self.projectsFrame.columnconfigure(0, weight=0)
+        self.projectsFrame.columnconfigure(1, weight=0)
+        self.projectsFrame.columnconfigure(2, weight=1)
+        self.projectsFrame.columnconfigure(3, weight=0)
+        self.projectsFrame.columnconfigure(4, weight=0)
+        self.projectsFrame.columnconfigure(5, weight=0)
+        
+        self.startFetch(self.currentContent)
+        self.fetchButton.config(command= lambda: self.manualFetch(self.currentContent))
+
     def clearFrame(self, frame):
         
         if not frame or not frame.winfo_exists():
@@ -294,6 +338,14 @@ class Application(tk.Frame):
                 print("Starting thread for to do tasks...")
                 threading.Thread(
                     target=self.fetchTasks,
+                    daemon= True
+                ).start()
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+
+            case "projects":
+                print("Starting thread for to do tasks...")
+                threading.Thread(
+                    target=self.fetchProjects,
                     daemon= True
                 ).start()
                 self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
@@ -466,7 +518,6 @@ class Application(tk.Frame):
 
     def updateItems(self, items):
 
-
         if not items:
             tk.Label(
                 self.itemsFrame,
@@ -529,6 +580,69 @@ class Application(tk.Frame):
             if item["category"] is not None:
                 categoryLabel = tk.Label(column, anchor="e", text= item["category"], bg="#005CFC").grid(row=row-removeRows, column=2, sticky="e")
         
+    def fetchProjects(self):
+            print("Fetching projects...")
+
+            response = requests.get(f"http://127.0.0.1:5000/projects")
+            data = response.json()
+
+            print(f"API Response type: {type(data)}")
+            print(f"API Response data: {data}")
+            
+            self.after(0, lambda: self.updateProjects(data))
+
+            self.fetch_running = False
+
+    def updateProjects(self, projects):
+
+        if not projects:
+            tk.Label(
+                self.Frame,
+                text="No Items",
+                bg="#262626",
+                justify= "center"
+            ).grid(sticky="ew")
+            return
+
+        for row, project in enumerate(projects):
+            # The variable below is like an on/off switch for the checkbox 
+            Var = tk.IntVar(value=1 if project.get("completed") else 0)
+
+            # Create a font object for this label
+            Font = tkFont.Font(family="Helvetica", size=12)    
+            Font.configure(overstrike=1 if project.get("completed") else 0)
+
+
+            projectTextLabel = tk.Label(self.projectsFrame,
+                                      text=project['title'],
+                                      bg="#262626",
+                                      font=Font)
+            project_id = project["id"]
+
+            # This is the main toggle that use the on/off switch in unison with the text label
+            def toggle(var=Var,font=Font, pid=project_id):
+                font.configure(overstrike= var.get())
+                requests.post(
+                    "http://127.0.0.1:5000/projects/update",
+                    json={
+                        "id": pid,
+                        "completed": bool(var.get())
+                    },
+                    timeout=2
+                )
+
+
+            completedCheckBox = tk.Checkbutton(self.projectsFrame,
+                                               variable=Var,
+                                               command=toggle,
+                                               bg="#262626")
+            
+            completedCheckBox.grid(row=row, column=0, sticky="nw", padx=(0, 8)) 
+
+            projectTextLabel.grid(row=row, column=1, sticky="nw")
+
+            descriptionButton = tk.Button(self.projectsFrame, text= "View description", bg="#262626", highlightthickness= 0, bd= 0).grid(row=row, column= 3, padx= 5)
+            subTasksButton = tk.Button(self.projectsFrame, text= "View Sub-Tasks", bg="#262626", highlightthickness= 0, bd= 0).grid(row=row, column= 4)
 
 
 app = Application()

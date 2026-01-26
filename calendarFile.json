@@ -18,7 +18,7 @@
     {
       "id": 4,
       "title": "Oil Change",
-      "completed": false
+      "completed": true
     },
     {
       "id": 5,
@@ -28,7 +28,7 @@
     {
       "id": 6,
       "title": "Cook Dinner",
-      "completed": false
+      "completed": true
     },
     {
       "id": 7,
@@ -107,7 +107,7 @@
     {
       "id": 6,
       "title": "Call Family",
-      "completed": false
+      "completed": true
     },
     {
       "id": 7,

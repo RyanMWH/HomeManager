@@ -154,7 +154,52 @@ def updateEventComplete():
     except json.JSONDecodeError:
         return jsonify({"error": "Invalid JSON file."}), 500        
         
+# Gets all projects.
+@app.route('/projects', methods = ['GET'])
+def getProjects():
+    try:
+        with open('projects.json', 'r') as File:
+            data = json.load(File)
 
+        projects = data.get("Projects", [])
+        return jsonify(projects), 200
+    
+    except FileNotFoundError:
+        return jsonify({"error": "calendarFile not found."}), 500
+    
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON file."}), 500
+
+# Updates the completion of the projection    
+@app.route('/projects/update', methods = ['POST'])
+def updateProjectComplete():
+    try:
+        payload = request.get_json()
+
+        project = payload.get('title')
+        project_id = payload.get('id')
+        completed = payload.get('completed')
+
+        if project is None or project_id is None or completed is None:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        with open('projects.json', 'r') as File:
+            data = json.load(File)
+
+        for project in data:
+            if project["id"] == project_id:
+                project["completed"] = bool(completed)
+
+                with open('projects.json', 'w') as File:
+                    json.dump(data, File, indent=2)
+
+                return jsonify({"message": "Task updated"}), 200
+
+    except FileNotFoundError:
+        return jsonify({"error": "projects.json not found."}), 500
+    
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON file."}), 500 
 
 if __name__ == '__main__':
     app.run(debug=True)
