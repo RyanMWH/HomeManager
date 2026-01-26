@@ -1,0 +1,52 @@
+{
+  "To Do": [
+    {
+      "id": 1,
+      "title": "Team Standup Meeting",
+      "category": "Test",
+      "completed": false,
+      "important": false,
+      "duedate": null
+    },
+    {
+      "id": 2,
+      "title": "Finish Dinner",
+      "category": "Test",
+      "completed": false,
+      "important": false,
+      "duedate": null
+    },
+    {
+      "id": 3,
+      "title": "Set Dentist Apt",
+      "category": "Medical",
+      "completed": false,
+      "important": true,
+      "duedate": "2026-02-05"
+    }
+  ],
+  "Groceries List": [
+    {
+      "id": 1,
+      "item": "Buy milk",
+      "gathered": false
+    },
+    {
+      "id": 1,
+      "item": "Buy milk",
+      "gathered": false
+    }
+  ],
+  "Car Maintenance": [
+    {
+      "task": "Change oil",
+      "important": false,
+      "done": true
+    },
+    {
+      "task": "Check tire pressure",
+      "important": false,
+      "done": false
+    }
+  ]
+}

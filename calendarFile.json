@@ -1,0 +1,239 @@
+{
+  "2026-01-06": [
+    {
+      "id": 1,
+      "title": "Morning Jog",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Team Standup Meeting",
+      "completed": false
+    },
+    {
+      "id": 3,
+      "title": "Grocery Shopping",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Oil Change",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "title": "Dentist Appointment",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "title": "Cook Dinner",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "title": "Watch a Movie",
+      "completed": false
+    },
+    {
+      "id": 8,
+      "title": "Find a Job",
+      "completed": false
+    }
+  ],
+  "2026-01-07": [
+    {
+      "id": 1,
+      "title": "Yoga Class",
+      "completed": true
+    },
+    {
+      "id": 2,
+      "title": "Client Call",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "title": "Work on Side Project",
+      "completed": true
+    },
+    {
+      "id": 4,
+      "title": "Lunch with Coworker",
+      "completed": true
+    },
+    {
+      "id": 5,
+      "title": "Pick Up Dry Cleaning",
+      "completed": true
+    },
+    {
+      "id": 6,
+      "title": "Read a Book",
+      "completed": true
+    },
+    {
+      "id": 7,
+      "title": "Evening Walk",
+      "completed": true
+    }
+  ],
+  "2026-01-08": [
+    {
+      "id": 1,
+      "title": "Gym Session",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Write Weekly Report",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "title": "Doctor Follow-up",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Online Shopping",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "title": "Clean Apartment",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "title": "Call Family",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "title": "Practice Guitar",
+      "completed": false
+    },
+    {
+      "id": 8,
+      "title": "Early Night In",
+      "completed": false
+    }
+  ],
+  "2026-01-09": [
+    {
+      "id": 1,
+      "title": "Morning Coffee Run",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Project Deadline",
+      "completed": false
+    },
+    {
+      "id": 3,
+      "title": "Lunch Meeting",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Car Wash",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "title": "Plan Weekend",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "title": "Happy Hour",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "title": "Game Night with Friends",
+      "completed": false
+    }
+  ],
+  "2026-01-10": [
+    {
+      "id": 1,
+      "title": "Sleep In",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Brunch",
+      "completed": false
+    },
+    {
+      "id": 3,
+      "title": "Go to Mall",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Buy New Shoes",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "title": "Find a Bar",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "title": "Dinner Out",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "title": "Late-Night Snacks",
+      "completed": false
+    }
+  ],
+  "2026-01-11": [
+    {
+      "id": 1,
+      "title": "Morning Stretch",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Coffee at Local Cafe",
+      "completed": false
+    },
+    {
+      "id": 3,
+      "title": "Look at Houses",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "title": "Take Photos",
+      "completed": false
+    },
+    {
+      "id": 5,
+      "title": "Meal Prep for Week",
+      "completed": false
+    },
+    {
+      "id": 6,
+      "title": "Laundry",
+      "completed": false
+    },
+    {
+      "id": 7,
+      "title": "Watch Sunday Sports",
+      "completed": false
+    },
+    {
+      "id": 8,
+      "title": "Plan Upcoming Week",
+      "completed": false
+    }
+  ]
+}
