@@ -360,7 +360,9 @@ class Application(tk.Frame):
             ).grid(sticky="ew")
             return
         
-        for row, task in enumerate(tasks):
+        sortedtasks = sorted(tasks, key= lambda item: item['important'], reverse= True)
+
+        for row, task in enumerate(sortedtasks):
             # The variable below is like an on/off switch for the checkbox 
             Var = tk.IntVar(value=1 if task.get("completed") else 0)
 
