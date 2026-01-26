@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Team Standup Meeting",
-      "category": "Test",
+      "owner": "Ryan",
       "completed": false,
       "important": false,
       "duedate": null
@@ -11,7 +11,7 @@
     {
       "id": 2,
       "title": "Finish Dinner",
-      "category": "Test",
+      "owner": "Emma",
       "completed": false,
       "important": false,
       "duedate": null
@@ -19,7 +19,7 @@
     {
       "id": 3,
       "title": "Set Dentist Apt",
-      "category": "Medical",
+      "owner": "Ryan",
       "completed": false,
       "important": true,
       "duedate": "2026-02-05"

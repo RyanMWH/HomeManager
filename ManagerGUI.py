@@ -402,8 +402,12 @@ class Application(tk.Frame):
             
             taskTextLabel.grid(row=row, column=2, sticky="nw")
 
-            if task["category"] is not None:
-                categoryLabel = tk.Label(self.tasksFrame, text= task["category"], bg="#005CFC").grid(row=row, column=3, sticky="w", padx=(450, 0))
+            if task["owner"] is not None:
+                categoryLabel = tk.Label(self.tasksFrame, text= task["owner"], bg="#005CFC").grid(row=row, column=3, sticky="w", padx=(450, 0))
+
+            if task["duedate"] is not None:
+                dateLabel = tk.Label(self.tasksFrame, text= task["duedate"], bg="#FF3700", fg="#000000").grid(row=row, column=4, sticky="ew")
+
             
 
 
