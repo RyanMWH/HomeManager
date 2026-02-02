@@ -12,7 +12,7 @@
       "id": 2,
       "title": "Finish Dinner",
       "owner": "Emma",
-      "completed": false,
+      "completed": true,
       "important": false,
       "duedate": null
     },

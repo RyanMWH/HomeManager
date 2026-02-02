@@ -1,4 +1,3 @@
-
 # Imports
 import tkinter as tk
 import tkinter.font as tkFont
@@ -26,6 +25,7 @@ class Application(tk.Frame):
         self.createFrames()
         self.createMenuWidgets()
 
+# Intializing Functions
     def createFrames(self):
         
         # Content Area
@@ -85,8 +85,103 @@ class Application(tk.Frame):
         self.projectsButton.grid(column= 5, row=0, pady= 5)
         print("Creating the Projects button...")
 
+# Helper Functions
+    def clearFrame(self, frame):
         
-    
+        if not frame or not frame.winfo_exists():
+            return
+        
+        for widget in frame.winfo_children():
+            widget.destroy()
+        print(f"Clearing {frame} frame...")
+
+    def startFetch(self, contentToFetch, project_id= None):
+        print("Starting fetch...")
+        if self.currentContent != contentToFetch:
+            return
+        
+        if self.fetch_running:
+            print("Fetch already running, skipping")
+            return
+        
+        self.fetch_running = True
+        
+        match contentToFetch:
+
+            case "calendar":
+                selectedDate = self.cal.get_date()
+                print("Starting thread for calendar events...")
+                threading.Thread(
+                    target=self.fetchDateEvents,
+                    args=(selectedDate,),
+                    daemon= True
+                ).start()
+
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch, selectedDate))
+
+            case "shoppingLists":
+                print("Starting thread for shopping list items...")
+                threading.Thread(
+                    target=self.fetchItems,
+                    daemon= True
+                ).start()
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+
+            case "carMaintenance":
+                print("Fetching Car Maintenance")
+
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+
+            case "todo":
+                print("Starting thread for to do tasks...")
+                threading.Thread(
+                    target=self.fetchTasks,
+                    daemon= True
+                ).start()
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+
+            case "projects":
+                print("Starting thread for projects...")
+                threading.Thread(
+                    target=self.fetchProjects,
+                    daemon= True
+                ).start()
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+
+            case "projectsubtasks":
+                print(f"Starting thread for project {project_id}'s, subtasks")
+                threading.Thread(
+                    target=self.fetchProjectSubtasks,
+                    args=(project_id,),
+                    daemon= True
+                ).start()
+                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch, project_id))
+
+            case default:
+                print("Unknown case!")
+
+    def manualFetch(self):
+        self.stopFetchLoop()          # reset timer
+        self.startFetch(self.currentContent)
+
+    def stopFetchLoop(self):
+        if self.fetch_job is not None:
+            self.after_cancel(self.fetch_job)
+            self.fetch_job = None
+            self.fetch_running = False
+        
+    def on_date_selected(self, event):
+        selected_date = self.cal.get_date()
+        self.startFetch("calendar", selected_date)
+
+    def delete(self, file, id=None, pid=None, stid=None):
+        print('test')
+
+# Maintenance Functions
+    def weeklyCleanUp():
+        print('Coming soon')
+
+# Content Screen Flips
     def todoContent(self):
         self.stopFetchLoop()
         self.currentContent = "todo"
@@ -117,6 +212,13 @@ class Application(tk.Frame):
         # Tasks Frame
         self.tasksFrame = tk.Frame(self.todoPageArea, bg="#262626")
         self.tasksFrame.grid(row=1, column=0, sticky="nsew")
+        self.tasksFrame.columnconfigure(0, weight=0)
+        self.tasksFrame.columnconfigure(1, weight=0)
+        self.tasksFrame.columnconfigure(2, weight=0)
+        self.tasksFrame.columnconfigure(3, weight=1)
+        self.tasksFrame.columnconfigure(4, weight=0)
+        self.tasksFrame.columnconfigure(5, weight=0)
+        self.tasksFrame.columnconfigure(6, weight=0)
         
 
 
@@ -288,81 +390,64 @@ class Application(tk.Frame):
         self.startFetch(self.currentContent)
         self.fetchButton.config(command= lambda: self.manualFetch(self.currentContent))
 
-    def clearFrame(self, frame):
-        
-        if not frame or not frame.winfo_exists():
-            return
-        
-        for widget in frame.winfo_children():
-            widget.destroy()
-        print(f"Clearing {frame} frame...")
+    def projectSubtasksContent(self, pid, title, desc):
+            self.stopFetchLoop()
+            self.currentContent = "projectsubtasks"
+            self.clearFrame(self.contentArea)
 
-    def startFetch(self, contentToFetch, date= None):
-        print("Starting fetch...")
-        if self.currentContent != contentToFetch:
-            return
-        
-        if self.fetch_running:
-            print("Fetch already running, skipping")
-            return
-        
-        self.fetch_running = True
-        
-        match contentToFetch:
+            # Setting Project Subtasks Page Content Frame
+            self.projectSubtasksPageArea = tk.Frame(self.contentArea, bg="#262626")
+            self.projectSubtasksPageArea.grid(row=0, column=0, sticky="nsew")
+            self.projectSubtasksPageArea.columnconfigure(0, weight=1)
+            self.projectSubtasksPageArea.rowconfigure(0, weight=1)            
+            self.projectSubtasksPageArea.rowconfigure(1, weight=0)
+            self.projectSubtasksPageArea.rowconfigure(2, weight=1)
+            self.projectSubtasksPageArea.rowconfigure(3, weight=8)
 
-            case "calendar":
-                selectedDate = self.cal.get_date()
-                print("Starting thread for calendar events...")
-                threading.Thread(
-                    target=self.fetchDateEvents,
-                    args=(selectedDate,),
-                    daemon= True
-                ).start()
+            # Creating Frames
+            # Project Title Frame
+            self.projectSubtasksTitleFrame = tk.Frame(self.projectSubtasksPageArea, bg="#262626")
+            self.projectSubtasksTitleFrame.grid(row=0, column=0, sticky="nsew")
+            self.projectSubtasksTitleFrame.columnconfigure(0, weight=1)
+            self.projectSubtasksTitleLabel = tk.Label(self.projectSubtasksTitleFrame,
+                                        text=title, 
+                                        bg="#262626",
+                                        fg="white",
+                                        anchor="center",
+                                        pady=10,
+                                        font=("Helvetica", 18, "bold")
+                                        )
+            self.projectSubtasksTitleLabel.grid(row=0, column=0, sticky="ew")
 
-                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch, selectedDate))
+            # Project Description Frame
+            self.projectDescriptionFrame = tk.Frame(self.projectSubtasksPageArea, bg="#262626")
+            self.projectDescriptionFrame.grid(row=1, column=0, sticky="nsew")
+            self.projectDescriptionFrame.columnconfigure(0, weight=1)
+            self.projectDescriptionFrame.columnconfigure(1, weight=6)
+            self.projectDescriptionFrame.columnconfigure(2, weight=1)
 
-            case "shoppingLists":
-                print("Starting thread for shopping list items...")
-                threading.Thread(
-                    target=self.fetchItems,
-                    daemon= True
-                ).start()
-                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+            self.projectDescriptionLabel = tk.Label(self.projectDescriptionFrame,
+                                        text=desc, 
+                                        bg="#262626",
+                                        fg="white"
+                                        )
+            self.projectDescriptionLabel.grid(row=0, column=1, sticky=tk.NW)
+            
+            # Subtasks Frame
+            self.subtasksHolderFrame = tk.Frame(self.projectSubtasksPageArea, bg="#262626")
+            self.subtasksHolderFrame.grid(row=3, column=0, sticky="nsew")
+            self.subtasksHolderFrame.columnconfigure(0, weight=0)
+            self.subtasksHolderFrame.columnconfigure(1, weight=0)
+            self.subtasksHolderFrame.columnconfigure(2, weight=1)
+            self.subtasksHolderFrame.columnconfigure(3, weight=0)
 
-            case "carMaintenance":
-                print("Fetching Car Maintenance")
+            
 
-                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
+            print(pid)
+            self.startFetch(self.currentContent, pid)
+            self.fetchButton.config(command= lambda: self.manualFetch(self.currentContent))
 
-            case "todo":
-                print("Starting thread for to do tasks...")
-                threading.Thread(
-                    target=self.fetchTasks,
-                    daemon= True
-                ).start()
-                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
-
-            case "projects":
-                print("Starting thread for to do tasks...")
-                threading.Thread(
-                    target=self.fetchProjects,
-                    daemon= True
-                ).start()
-                self.fetch_job = self.after(60000, lambda: self.startFetch(contentToFetch))
-
-            case default:
-                print("Unknown case!")
-
-    def manualFetch(self):
-        self.stopFetchLoop()          # reset timer
-        self.startFetch(self.currentContent)
-
-    def stopFetchLoop(self):
-        if self.fetch_job is not None:
-            self.after_cancel(self.fetch_job)
-            self.fetch_job = None
-            self.fetch_running = False
-        
+# Data retrival start
     def fetchDateEvents(self, date):
         print(f"Fetching events for {date}...")
 
@@ -378,10 +463,61 @@ class Application(tk.Frame):
 
         self.fetch_running = False
 
-    def on_date_selected(self, event):
-        selected_date = self.cal.get_date()
-        self.startFetch("calendar", selected_date)
+    def fetchTasks(self):
+            print("Fetching tasks...")
 
+            response = requests.get(f"http://127.0.0.1:5000/lists/tasks")
+            data = response.json()
+
+            print(f"API Response type: {type(data)}")
+            print(f"API Response data: {data}")
+            
+            self.after(0, lambda: self.updateTasks(data))
+
+            self.fetch_running = False
+
+    def fetchItems(self):
+            print("Fetching items...")
+
+            response = requests.get(f"http://127.0.0.1:5000/lists/items")
+            data = response.json()
+
+            print(f"API Response type: {type(data)}")
+            print(f"API Response data: {data}")
+            
+            self.after(0, lambda: self.updateItems(data))
+
+            self.fetch_running = False
+
+    def fetchProjects(self):
+            print("Fetching projects...")
+
+            response = requests.get(f"http://127.0.0.1:5000/projects")
+            data = response.json()
+
+            print(f"API Response type: {type(data)}")
+            print(f"API Response data: {data}")
+            
+            self.after(0, lambda: self.updateProjects(data))
+
+            self.fetch_running = False
+
+    def fetchProjectSubtasks(self, pid):
+        print("Fetching subtasks for project...")
+
+        response = requests.get(f"http://127.0.0.1:5000/projects/{pid}/tasks")
+        data = response.json()
+
+
+        print(f"API Response type: {type(data)}")
+        print(f"API Response data: {data}")
+        
+        self.after(0, lambda: self.updateProjectSubtasks(data, pid))
+
+        self.fetch_running = False
+
+
+# Functions to keep data up to date with variable changes, and check list toggle.
     def updateCalendarEvents(self, events):
         self.clearFrame(self.eventsListFrame)
 
@@ -430,19 +566,13 @@ class Application(tk.Frame):
             
             completedCheckBox.grid(row=row, column=0, sticky="w", padx=(0, 8)) 
             eventTextLabel.grid(row=row, column=1, sticky="w")
-        
-    def fetchTasks(self):
-            print("Fetching tasks...")
 
-            response = requests.get(f"http://127.0.0.1:5000/lists/tasks")
-            data = response.json()
-
-            print(f"API Response type: {type(data)}")
-            print(f"API Response data: {data}")
-            
-            self.after(0, lambda: self.updateTasks(data))
-
-            self.fetch_running = False
+            deleteButton = tk.Button(self.eventsListFrame,
+                                     text= 'X',
+                                     bg="#262626",
+                                     highlightthickness= 0,
+                                     bd= 0)
+            deleteButton.grid(row=row, column= 3, padx= (2, 8))       
 
     def updateTasks(self, tasks):
 
@@ -498,23 +628,17 @@ class Application(tk.Frame):
             taskTextLabel.grid(row=row, column=2, sticky="nw")
 
             if task["owner"] is not None:
-                ownerLabel = tk.Label(self.tasksFrame, text= task["owner"], bg="#005CFC").grid(row=row, column=3, sticky="w", padx=(450, 0))
+                ownerLabel = tk.Label(self.tasksFrame, text= task["owner"], bg="#005CFC").grid(row=row, column=4, sticky="w")
 
             if task["duedate"] is not None:
-                dateLabel = tk.Label(self.tasksFrame, text= task["duedate"], bg="#FF3700", fg="#000000").grid(row=row, column=4, sticky="ew")
+                dateLabel = tk.Label(self.tasksFrame, text= task["duedate"], bg="#FF3700", fg="#000000").grid(row=row, column=5, sticky="ew")
 
-    def fetchItems(self):
-            print("Fetching items...")
-
-            response = requests.get(f"http://127.0.0.1:5000/lists/items")
-            data = response.json()
-
-            print(f"API Response type: {type(data)}")
-            print(f"API Response data: {data}")
-            
-            self.after(0, lambda: self.updateItems(data))
-
-            self.fetch_running = False
+            deleteButton = tk.Button(self.tasksFrame,
+                                     text= 'X',
+                                     bg="#262626",
+                                     highlightthickness= 0,
+                                     bd= 0)
+            deleteButton.grid(row=row, column= 6, padx= (2, 8))
 
     def updateItems(self, items):
 
@@ -579,26 +703,20 @@ class Application(tk.Frame):
 
             if item["category"] is not None:
                 categoryLabel = tk.Label(column, anchor="e", text= item["category"], bg="#005CFC").grid(row=row-removeRows, column=2, sticky="e")
-        
-    def fetchProjects(self):
-            print("Fetching projects...")
 
-            response = requests.get(f"http://127.0.0.1:5000/projects")
-            data = response.json()
-
-            print(f"API Response type: {type(data)}")
-            print(f"API Response data: {data}")
-            
-            self.after(0, lambda: self.updateProjects(data))
-
-            self.fetch_running = False
+            deleteButton = tk.Button(column,
+                                     text= 'X',
+                                     bg="#262626",
+                                     highlightthickness= 0,
+                                     bd= 0)
+            deleteButton.grid(row=row-removeRows, column= 3, padx= (2, 8))
 
     def updateProjects(self, projects):
 
         if not projects:
             tk.Label(
-                self.Frame,
-                text="No Items",
+                self.projectsFrame,
+                text="No Projects",
                 bg="#262626",
                 justify= "center"
             ).grid(sticky="ew")
@@ -640,9 +758,81 @@ class Application(tk.Frame):
             completedCheckBox.grid(row=row, column=0, sticky="nw", padx=(0, 8)) 
 
             projectTextLabel.grid(row=row, column=1, sticky="nw")
+            
+            print(project_id)
 
-            descriptionButton = tk.Button(self.projectsFrame, text= "View description", bg="#262626", highlightthickness= 0, bd= 0).grid(row=row, column= 3, padx= 5)
-            subTasksButton = tk.Button(self.projectsFrame, text= "View Sub-Tasks", bg="#262626", highlightthickness= 0, bd= 0).grid(row=row, column= 4)
+            subTasksButton = tk.Button(self.projectsFrame,
+                                    text= "View Sub-Tasks",
+                                    bg="#262626",
+                                    highlightthickness= 0,
+                                    bd= 0,
+                                    command= lambda pid=project_id,
+                                                    title=project['title'],
+                                                    desc=project['description']:
+                                                    self.projectSubtasksContent(int(pid), title, desc))
+            subTasksButton.grid(row=row, column= 4)
+            deleteButton = tk.Button(self.projectsFrame,
+                                     text= 'X',
+                                     bg="#262626",
+                                     highlightthickness= 0,
+                                     bd= 0)
+            deleteButton.grid(row=row, column= 5, padx= (2, 8))
+
+    def updateProjectSubtasks(self, subtasks, pid):
+
+        if not subtasks:
+            tk.Label(
+                self.subtasksHolderFrame,
+                text="No Tasks",
+                bg="#262626",
+                justify= "center"
+            ).grid(sticky="ew")
+            return
+        
+        for row, subtask in enumerate(subtasks):
+            # The variable below is like an on/off switch for the checkbox 
+            Var = tk.IntVar(value=1 if subtask.get("completed") else 0)
+
+            # Create a font object for this label
+            Font = tkFont.Font(family="Helvetica", size=12)    
+            Font.configure(overstrike=1 if subtask.get("completed") else 0)
+
+
+            subtaskTextLabel = tk.Label(self.subtasksHolderFrame,
+                                      text=subtask['title'],
+                                      bg="#262626",
+                                      font=Font)
+            subtask_id = subtask["id"]
+
+            # This is the main toggle that use the on/off switch in unison with the text label
+            def toggle(var=Var,font=Font, stid=subtask_id):
+                font.configure(overstrike= var.get())
+                requests.post(
+                    "http://127.0.0.1:5000/projects/tasks/update",
+                    json={
+                        "pid": pid,
+                        "stid": stid,
+                        "completed": bool(var.get())
+                    },
+                    timeout=2
+                )
+
+
+            completedCheckBox = tk.Checkbutton(self.subtasksHolderFrame,
+                                               variable=Var,
+                                               command=toggle,
+                                               bg="#262626")
+            
+            completedCheckBox.grid(row=row, column=0, sticky="nw", padx=(0, 8)) 
+
+            subtaskTextLabel.grid(row=row, column=1, sticky="nw")
+
+            deleteButton = tk.Button(self.subtasksHolderFrame,
+                                     text= 'X',
+                                     bg="#262626",
+                                     highlightthickness= 0,
+                                     bd= 0)
+            deleteButton.grid(row=row, column= 5, padx= (2, 8))
 
 
 app = Application()
