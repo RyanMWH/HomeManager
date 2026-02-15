@@ -1,44 +1,63 @@
 {
-    "Projects": [
+  "Projects": [
+    {
+      "id": 1,
+      "title": "Home Manager",
+      "description": "This is the project that is going to track the to do list, calendar, shopping list and projects with thier subtasks.",
+      "completed": false,
+      "tasks": [
         {
-            "id": 1,
-            "title": "Project Alpha",
-            "description": "This is the first project.",
-            "completed": false,
-            "tasks": [
-                {
-                    "id": 1,
-                    "title": "Task 1",
-                    "description": "This is the first task of Project Alpha.",
-                    "completed": false
-                },
-                {
-                    "id": 2,
-                    "title": "Task 2",
-                    "description": "This is the second task of Project Alpha.",
-                    "completed": true
-                }
-            ]
+          "id": 1,
+          "title": "Add the Deletion Button for each item",
+          "description": "N/A",
+          "completed": false
         },
         {
-            "id": 2,
-            "title": "Project Beta",
-            "description": "This is the second project.",
-            "completed": true,
-            "tasks": [
-                {
-                    "id": 1,
-                    "title": "Task A",
-                    "description": "This is the first task of Project Beta.",
-                    "completed": true
-                },
-                {
-                    "id": 2,
-                    "title": "Task B",
-                    "description": "This is the second task of Project Beta.",
-                    "completed": true
-                }
-            ]
+          "id": 2,
+          "title": "Add option to add an event/task/project/subtask",
+          "description": "We are looking",
+          "completed": false
+        },
+        {
+          "id": 3,
+          "title": "Buy a touchscreen monitor for ease of interaction",
+          "description": "We are looking for at least a 7 inch screen",
+          "completed": false
         }
-    ]
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Gecko Tank",
+      "description": "Setting up the new tank for Mrs.Boomhauer",
+      "completed": false,
+      "tasks": [
+        {
+          "id": 2,
+          "title": "Seal wall with brown caulk then add coconut husk and dirt to cover it.",
+          "completed": false
+        },
+        {
+          "id": 3,
+          "title": "Put foundation of hydroballs, then lay the screen and the dirt with coconut husk mix.",
+          "completed": false
+        },
+        {
+          "id": 4,
+          "title": "Get light set up, lights needed are UV, night light and grow light.",
+          "completed": false
+        },
+        {
+          "id": 5,
+          "title": "Order plants promptly and set up the water system",
+          "completed": false
+        },
+        {
+          "id": 6,
+          "title": "Order clean up crew",
+          "completed": false
+        }
+      ]
+    }
+  ]
 }

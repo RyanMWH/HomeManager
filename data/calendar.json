@@ -11,16 +11,6 @@
       "completed": true
     },
     {
-      "id": 3,
-      "title": "Grocery Shopping",
-      "completed": false
-    },
-    {
-      "id": 4,
-      "title": "Oil Change",
-      "completed": true
-    },
-    {
       "id": 5,
       "title": "Dentist Appointment",
       "completed": false
@@ -33,11 +23,6 @@
     {
       "id": 7,
       "title": "Watch a Movie",
-      "completed": false
-    },
-    {
-      "id": 8,
-      "title": "Find a Job",
       "completed": false
     }
   ],

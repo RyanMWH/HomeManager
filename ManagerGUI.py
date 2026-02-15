@@ -174,8 +174,68 @@ class Application(tk.Frame):
         selected_date = self.cal.get_date()
         self.startFetch("calendar", selected_date)
 
-    def delete(self, file, id=None, pid=None, stid=None):
-        print('test')
+    def delete(self, file, id=None, eid=None, iid=None, pid=None, stid=None, date=None):
+        match file:
+            case 'subtasks':
+                print(f"Deleting subtask {stid} under project {pid}")
+                requests.delete(
+                    "http://127.0.0.1:5000/projects/tasks/delete",
+                    json={
+                        "pid": pid,
+                        "stid": stid
+                    },
+                    timeout=2
+                )
+                self.clearFrame(self.subtasksHolderFrame)
+
+            case 'projects':
+                print(f"Deleting project {pid}")
+                requests.delete(
+                    "http://127.0.0.1:5000/projects/delete",
+                    json={
+                        "pid": pid
+                    },
+                    timeout=2
+                )
+                self.clearFrame(self.projectsFrame)
+            
+            case 'tasks':
+                print(f"Deleting task {id}")
+                requests.delete(
+                    "http://127.0.0.1:5000/lists/tasks/delete",
+                    json={
+                        "id": id
+                    },
+                    timeout=2
+                )
+                self.clearFrame(self.tasksFrame)
+
+            case 'calendar':
+                print(f"Deleting event {eid} under day {date}")
+                requests.delete(
+                    "http://127.0.0.1:5000/calendar/date/delete",
+                    json={
+                        "date": date,
+                        "eid": eid
+                    },
+                    timeout=2
+                )
+                self.clearFrame(self.eventsListFrame)
+
+            case 'shopping':
+                print(f"Deleting item {iid}")
+                requests.delete(
+                    "http://127.0.0.1:5000/lists/items/delete",
+                    json={
+                        "iid": iid
+                    },
+                    timeout=2
+                )
+                self.clearFrame(self.leftItemsFrame)
+                self.clearFrame(self.rightItemsFrame)
+
+        self.startFetch(self.currentContent, pid)
+
 
 # Maintenance Functions
     def weeklyCleanUp():
@@ -438,8 +498,9 @@ class Application(tk.Frame):
             self.subtasksHolderFrame.grid(row=3, column=0, sticky="nsew")
             self.subtasksHolderFrame.columnconfigure(0, weight=0)
             self.subtasksHolderFrame.columnconfigure(1, weight=0)
-            self.subtasksHolderFrame.columnconfigure(2, weight=1)
-            self.subtasksHolderFrame.columnconfigure(3, weight=0)
+            self.subtasksHolderFrame.columnconfigure(2, weight=0)
+            self.subtasksHolderFrame.columnconfigure(3, weight=1)
+            self.subtasksHolderFrame.columnconfigure(4, weight=0)
 
             
 
@@ -545,13 +606,15 @@ class Application(tk.Frame):
                                       font=Font)
             event_id = event["id"]
 
+            date = self.cal.get_date()
+
             # This is the main toggle that use the on/off switch in unison with the text label
             def toggle(var=Var,font=Font, eid=event_id):
                 font.configure(overstrike= var.get())
                 requests.post(
                     "http://127.0.0.1:5000/calendar/update",
                     json={
-                        "date": self.cal.get_date(),
+                        "date": date,
                         "id": eid,
                         "completed": bool(var.get())
                     },
@@ -571,7 +634,12 @@ class Application(tk.Frame):
                                      text= 'X',
                                      bg="#262626",
                                      highlightthickness= 0,
-                                     bd= 0)
+                                     bd= 0,
+                                     command= lambda
+                                                file= 'calendar',
+                                                event= event_id,
+                                                date= date:
+                                                self.delete(file, eid= event, date= date))
             deleteButton.grid(row=row, column= 3, padx= (2, 8))       
 
     def updateTasks(self, tasks):
@@ -637,7 +705,11 @@ class Application(tk.Frame):
                                      text= 'X',
                                      bg="#262626",
                                      highlightthickness= 0,
-                                     bd= 0)
+                                     bd= 0,
+                                     command= lambda
+                                                file= 'tasks',
+                                                task= task_id:
+                                                self.delete(file, id= task))
             deleteButton.grid(row=row, column= 6, padx= (2, 8))
 
     def updateItems(self, items):
@@ -708,10 +780,15 @@ class Application(tk.Frame):
                                      text= 'X',
                                      bg="#262626",
                                      highlightthickness= 0,
-                                     bd= 0)
+                                     bd= 0,
+                                     command= lambda
+                                                file= 'shopping',
+                                                item= item_id:
+                                                self.delete(file, iid= item))
             deleteButton.grid(row=row-removeRows, column= 3, padx= (2, 8))
 
     def updateProjects(self, projects):
+        self.clearFrame(self.projectsFrame)
 
         if not projects:
             tk.Label(
@@ -775,7 +852,11 @@ class Application(tk.Frame):
                                      text= 'X',
                                      bg="#262626",
                                      highlightthickness= 0,
-                                     bd= 0)
+                                     bd= 0,
+                                     command= lambda
+                                                file= 'projects',
+                                                project= project_id:
+                                                self.delete(file, pid= project))
             deleteButton.grid(row=row, column= 5, padx= (2, 8))
 
     def updateProjectSubtasks(self, subtasks, pid):
@@ -797,15 +878,15 @@ class Application(tk.Frame):
             Font = tkFont.Font(family="Helvetica", size=12)    
             Font.configure(overstrike=1 if subtask.get("completed") else 0)
 
-
             subtaskTextLabel = tk.Label(self.subtasksHolderFrame,
                                       text=subtask['title'],
                                       bg="#262626",
                                       font=Font)
-            subtask_id = subtask["id"]
+
+            stid = subtask["id"]
 
             # This is the main toggle that use the on/off switch in unison with the text label
-            def toggle(var=Var,font=Font, stid=subtask_id):
+            def toggle(var=Var,font=Font, stid=stid):
                 font.configure(overstrike= var.get())
                 requests.post(
                     "http://127.0.0.1:5000/projects/tasks/update",
@@ -831,7 +912,12 @@ class Application(tk.Frame):
                                      text= 'X',
                                      bg="#262626",
                                      highlightthickness= 0,
-                                     bd= 0)
+                                     bd= 0,
+                                     command= lambda
+                                                file= 'subtasks',
+                                                project= pid,
+                                                subtask= stid:
+                                                self.delete(file, pid= project, stid= subtask))
             deleteButton.grid(row=row, column= 5, padx= (2, 8))
 
 

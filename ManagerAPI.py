@@ -1,5 +1,3 @@
-# Need to come back and the try and excepts to this page so we can get a full understanding of what is happening when it happens.
-
 
 from flask import Flask, request, jsonify, render_template_string
 import json
@@ -61,6 +59,30 @@ def updateTaskComplete():
 
     return jsonify({"error": "Task not found"}), 404
 
+# Delete task from To-Do list
+@app.route('/lists/tasks/delete', methods=['DELETE'])
+def deleteTask():
+
+    payload = request.get_json()
+    
+    task_id = payload.get('id')
+
+    data = readJSON('tasks.json')
+
+    olddata = len(data["To Do"])
+    if task_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Find project
+
+    data["To Do"]= [task for task in data["To Do"] if int(task["id"]) != int(task_id)]
+    writeJSON('tasks.json', data)
+    newdata = len(data["To Do"])
+    if len(olddata) == len(newdata):
+        return jsonify({"message": "Task was not removed"}), 500
+    
+    return jsonify({"message": "Task deleted"}), 200
+
 # Gets the shopping list items
 @app.route('/lists/items', methods = ['GET'])
 def getItems():
@@ -91,6 +113,30 @@ def updateItemGathered():
             return jsonify({"message": "Item updated"}), 200
 
     return jsonify({"error": "Item not found"}), 404
+
+# Delete item from shopping list
+@app.route('/lists/items/delete', methods=['DELETE'])
+def deleteItem():
+
+    payload = request.get_json()
+    
+    item_id = payload.get('iid')
+
+    data = readJSON('shopping.json')
+
+    olddata = len(data["Groceries List"])
+    if item_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Find project
+
+    data["Groceries List"]= [item for item in data["Groceries List"] if int(item["id"]) != int(item_id)]
+    writeJSON('shopping.json', data)
+    newdata = len(data["Groceries List"])
+    if len(olddata) == len(newdata):
+        return jsonify({"message": "Item was not removed"}), 500
+    
+    return jsonify({"message": "Item deleted"}), 200
 
 # Gets the events for selected date.
 @app.route('/calendar/<date>', methods = ['GET'])
@@ -124,7 +170,31 @@ def updateEventComplete():
             return jsonify({"message": "Task updated"}), 200
             
     return jsonify({"error": "Event not found"}), 404     
-        
+
+# Deletes the event under a specified date
+@app.route('/calendar/date/delete', methods=['DELETE'])
+def deleteEvent():
+
+    payload = request.get_json()
+    
+    date = payload.get('date')
+    event_id = payload.get('eid')
+
+    data = readJSON('calendar.json')
+
+    if date is None or event_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Find project
+    for events in data.get(date, []):
+        if int(events["id"]) == int(event_id):
+            # Remove matching event
+            data[date].remove(events)
+            writeJSON('calendar.json', data)
+            return jsonify({"message": "Event deleted"}), 200
+
+    return jsonify({"error": "Event not found"}), 404
+
 # Gets all projects.
 @app.route('/projects', methods = ['GET'])
 def getProjects():
@@ -140,16 +210,15 @@ def updateProjectComplete():
         
     payload = request.get_json()
 
-    project = payload.get('title')
     project_id = payload.get('id')
     completed = payload.get('completed')
 
-    if project is None or project_id is None or completed is None:
+    if project_id is None or completed is None:
         return jsonify({"error": "Missing required fields"}), 400
     
     data = readJSON('projects.json')
 
-    for project in data:
+    for project in data.get("Projects", []):
         if project["id"] == project_id:
             project["completed"] = bool(completed)
 
@@ -158,6 +227,25 @@ def updateProjectComplete():
             return jsonify({"message": "Task updated"}), 200
         
     return jsonify({"error": "Task not found"}), 404
+
+@app.route('/projects/delete', methods=['DELETE'])
+def deleteProject():
+
+    payload = request.get_json()
+    
+    project_id = payload.get('pid')
+
+    data = readJSON('projects.json')
+
+    if project_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Find project
+
+    data["Projects"]= [project for project in data.get("Projects", []) if int(project["id"]) != int(project_id)]
+    writeJSON('projects.json', data)
+    return jsonify({"message": "Project deleted"}), 200
+
 
 @app.route('/projects/<pid>/tasks', methods = ['GET'])
 def getSubtasksForProject(pid):
@@ -204,6 +292,33 @@ def updateProjectSubtaskComplete():
 
     return jsonify({"error": "Subtask not found"}), 404
 
+# Delete Project Subtasks
+
+##########################
+# !!! CLEAN UP LATER !!! #
+##########################
+@app.route('/projects/tasks/delete', methods=['DELETE'])
+def delete_subtask():
+
+    payload = request.get_json()
+    
+    project_id = payload.get('pid')
+    subtask_id = payload.get('stid')
+
+    data = readJSON('projects.json')
+
+    if project_id is None or subtask_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Find project
+    for project in data.get("Projects", []):
+        if int(project["id"]) == int(project_id):
+            # Remove matching subtask
+            project["tasks"] = [task for task in project.get("tasks", []) if int(task["id"]) != int(subtask_id)]
+            writeJSON('projects.json', data)
+            return jsonify({"message": "Subtask deleted"}), 200
+
+    return jsonify({"error": "Project or Subtask not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
